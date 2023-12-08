@@ -8,11 +8,13 @@ const createError = require("http-errors");
 
 const getAll = async (req, res, next) => {
   const { _id: owner } = req.user;
+  const { page = 1, limit = 20 } = req.query;
+  const skip = (page - 1) * limit;
   try {
-    const data = await Contact.find(
-      { owner },
-      "-createdAt -updatedAt"
-    ).populate("owner", "email");
+    const data = await Contact.find({ owner }, "-createdAt -updatedAt", {
+      skip,
+      limit,
+    }).populate("owner", "email");
     res.json(data);
   } catch (err) {
     next(err);
