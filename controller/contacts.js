@@ -6,9 +6,15 @@ const {
 } = require("../models/contact");
 const createError = require("http-errors");
 
-const getAll = async (_, res, next) => {
+const getAll = async (req, res, next) => {
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20 } = req.query;
+  const skip = (page - 1) * limit;
   try {
-    const data = await Contact.find({}, "-createdAt -updatedAt");
+    const data = await Contact.find({ owner }, "-createdAt -updatedAt", {
+      skip,
+      limit,
+    }).populate("owner", "email");
     res.json(data);
   } catch (err) {
     next(err);
@@ -29,13 +35,14 @@ const getById = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
+  const { _id: owner } = req.user;
   try {
     const body = req.body;
     const { error } = contactJoiSchema.validate(body);
     if (error) {
       res.status(400).json(error.message);
     }
-    const newContact = await Contact.create(body);
+    const newContact = await Contact.create({ ...body, owner });
     res.status(201).json(newContact);
   } catch (err) {
     next(err);

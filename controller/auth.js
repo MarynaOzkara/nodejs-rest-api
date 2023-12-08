@@ -1,5 +1,4 @@
 const ctrlWrapper = require("../helpers/ctrWrapper");
-// const httpErrors = require("../helpers/httpErrors");
 const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -10,7 +9,6 @@ const register = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (user) {
-    // throw httpErrors(409, `${email} in use`);
     res.status(409).json({ massege: `${email} in use` });
   }
   const hashPassword = await bcrypt.hash(password, 10);
@@ -24,12 +22,10 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    // throw httpErrors(401, "Email or password is wrong");
     res.status(401).json({ massege: "Email or password is wrong" });
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
-    // throw httpErrors(401, "Email or password is wrong");
     res.status(401).json({ massege: "Email or password is wrong" });
   }
   const payload = {
@@ -37,13 +33,26 @@ const login = async (req, res) => {
   };
 
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  await User.findByIdAndUpdate(user._id, { token });
   res.json({
     token,
     user: { email: user.email, subscription: user.subscription },
   });
 };
-
+const getCurrent = async (req, res) => {
+  const { email, subscription } = req.user;
+  res.json({ email, subscription });
+};
+const logout = async (req, res) => {
+  const { _id } = req.user;
+  await User.findByIdAndUpdate(_id, { token: "" });
+  res.status(204).json({
+    message: "Logout success",
+  });
+};
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
+  getCurrent: ctrlWrapper(getCurrent),
+  logout: ctrlWrapper(logout),
 };
