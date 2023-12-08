@@ -15,6 +15,7 @@ const authenticate = async (req, res, next) => {
     if (!user) {
       next(res.status(401).json({ message: "Unauthorized" }));
     }
+    req.user = user;
     next();
   } catch {
     next(res.status(401).json({ message: "Unauthorized" }));
