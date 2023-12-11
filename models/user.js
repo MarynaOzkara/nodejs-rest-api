@@ -13,6 +13,9 @@ const userLoginJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegex).required(),
   password: Joi.string().min(6).required(),
 });
+// const updateSubscriptionJoiSchema = Joi.object({
+//   subscription: Joi.array()
+// })
 const userSchema = new Schema(
   {
     password: {
