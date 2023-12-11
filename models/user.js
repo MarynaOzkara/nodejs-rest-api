@@ -13,9 +13,9 @@ const userLoginJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegex).required(),
   password: Joi.string().min(6).required(),
 });
-// const updateSubscriptionJoiSchema = Joi.object({
-//   subscription: Joi.array()
-// })
+const updateSubscriptionJoiSchema = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
+});
 const userSchema = new Schema(
   {
     password: {
@@ -38,6 +38,10 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    avatarURL: {
+      type: String,
+      required: true,
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -46,6 +50,7 @@ userSchema.post("save", handleMongooseError);
 const schemas = {
   userRegisterJoiSchema,
   userLoginJoiSchema,
+  updateSubscriptionJoiSchema,
 };
 
 const User = model("user", userSchema);

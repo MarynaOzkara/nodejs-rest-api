@@ -10,6 +10,7 @@ const getAll = async (req, res, next) => {
   const { _id: owner } = req.user;
   const { page = 1, limit = 20, favorite } = req.query;
   const skip = (page - 1) * limit;
+  const totalCount = await Contact.countDocuments().populate("owner", "email");
   try {
     const data = await Contact.find({ owner }, "-createdAt -updatedAt", {
       skip,
@@ -19,7 +20,7 @@ const getAll = async (req, res, next) => {
       data.where("favorite").equals(favorite);
     }
 
-    res.json(data);
+    res.json({ data, page, limit, totalCount });
   } catch (err) {
     next(err);
   }
@@ -28,7 +29,9 @@ const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const contact = await Contact.findById(contactId, "-createdAt -updatedAt");
-
+    if (contact.owner.toString() !== req.user._id.toString()) {
+      throw createError(404, "Not found");
+    }
     if (!contact) {
       throw createError(404, `Contact not found`);
     }
