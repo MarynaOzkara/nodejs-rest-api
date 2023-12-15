@@ -10,7 +10,7 @@ const getAll = async (req, res, next) => {
   const { _id: owner } = req.user;
   const { page = 1, limit = 20, favorite } = req.query;
   const skip = (page - 1) * limit;
-  const totalCount = await Contact.countDocuments().populate("owner", "email");
+  const totalCount = await Contact.countDocuments({ owner });
   try {
     const data = await Contact.find({ owner }, "-createdAt -updatedAt", {
       skip,
