@@ -9,6 +9,9 @@ const userRegisterJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegex).required(),
   password: Joi.string().min(6).required(),
 });
+const emailVerifyJoiSchema = Joi.object({
+  email: Joi.string().pattern(emailRegex).required(),
+});
 const userLoginJoiSchema = Joi.object({
   email: Joi.string().pattern(emailRegex).required(),
   password: Joi.string().min(6).required(),
@@ -57,6 +60,7 @@ const userSchema = new Schema(
 userSchema.post("save", handleMongooseError);
 const schemas = {
   userRegisterJoiSchema,
+  emailVerifyJoiSchema,
   userLoginJoiSchema,
   updateSubscriptionJoiSchema,
 };
